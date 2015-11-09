@@ -1,0 +1,17 @@
+{
+  "appID": "f8a13d8c21f249228b83c69c2df589bc",
+  "dependencies": {
+   "devkit-core": "https://github.com/gameclosure/devkit-core#v3.0.2"
+  },
+  "shortName": "bombmania",
+  "studio": {
+    "domain": "studio.example.com",
+    "name": "Your Studio Name",
+    "stagingDomain": "staging.example.com"
+  },
+  "supportedOrientations": [
+    "portrait",
+    "landscape"
+  ],
+  "title": "Bomb Mania"
+}
