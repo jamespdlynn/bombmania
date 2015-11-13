@@ -13,20 +13,19 @@ exports = Class(GC.Application,function (){
 
   		this.style.scale = device.screen.width / baseWidth;
 
-		/*var background = new ImageView({
-			superview: this.view,
-			x: 0,
-			y: 0,
+		var background = new ImageView({
+			superview: this,
 			width: baseWidth,
 			height: baseHeight,
 			image: "resources/images/background.png", //576x1024
 			zIndex: 0
-		});*/
+		});
 
 	  	this.game = new Game({
 	  		superview : this,
 	  		width : baseWidth,
-	  		height : baseHeight
+	  		height : baseHeight,
+			zIndex : 1
 	  	})
 
 	};
