@@ -1,26 +1,34 @@
 import ui.View as View;
 import src.Launcher as Launcher;
-import math.geom.intersect as intersect;
+import src.Grid as Grid;
 import math.geom.Rect as Rect;
 
 exports = Class(View, function(supr){
 
 	this.init = function(){
 
-
 		supr(this, 'init', arguments);
-		
-	
-        this.launcher = new Launcher({
+
+		this.launcher = new Launcher({
       		superview: this,
-      		height: this.style.height * 0.2,
-      		x : this.style.width * 0.5,
-      		y : this.style.height * 0.83,
       		zIndex : 2
         });
 
-		this.canHandleEvents(true);
+		this.launcher.style.update({
+			x : (this.style.width/2) - (this.launcher.style.width/2),
+			y : this.style.height - (this.launcher.style.height*0.85)
+		});
+
+		this.grid = new Grid({
+			superview : this,
+			width : this.style.width,
+			height : this.launcher.style.y
+		});
+
 		this.bounds = this.getBoundingShape();
+
+
+		this.canHandleEvents(true);
 	};
 
 
@@ -32,26 +40,7 @@ exports = Class(View, function(supr){
 	};
 
 
-	this.tick = function(){
-		if (this.activeBomb){
 
-			var rightBounds = this.bounds.getSide(Rect.SIDES.RIGHT);
-			var leftBounds = this.bounds.getSide(Rect.SIDES.LEFT);
-			var topBounds = this.bounds.getSide(Rect.SIDES.TOP);
-
-			var circle = this.activeBomb.getBoundingShape();
-
-			var collide = intersect.circleAndLine;
-
-			if (collide(circle, rightBounds) || collide(circle, leftBounds) ) {
-				this.activeBomb.bounce();
-			}
-			else if (collide(circle, topBounds)){
-				this.activeBomb.stop();
-				this.activeBomb = null;
-			}
-		}
-	};
 
 
 	this.addEventListeners = function(){
@@ -67,12 +56,14 @@ exports = Class(View, function(supr){
 
 				var point = this.activeBomb.getPosition(this);
 				this.activeBomb.updateOpts({
-					superview : this,
+					superview : this.grid,
 					x : point.x,
 					y : point.y
 				});
 
-				this.activeBomb.move(this.launcher.getAngle());
+				this.activeBomb.start(this.launcher.getAngle());
+
+
 			}
 
 			this.removeEventListeners();
@@ -80,11 +71,30 @@ exports = Class(View, function(supr){
 
 	};
 
-
-
     this.removeEventListeners = function(){
 		this.removeAllListeners('InputMove');
 		this.removeAllListeners('InputSelect');
     }
 
+	this.tick = function(){
+		if (this.activeBomb){
+
+			var rightBounds = this.bounds.getSide(Rect.SIDES.RIGHT);
+			var leftBounds = this.bounds.getSide(Rect.SIDES.LEFT);
+			var topBounds = this.bounds.getSide(Rect.SIDES.TOP);
+
+
+			if (this.activeBomb.hasIntersected(rightBounds) || this.activeBomb.hasIntersected(leftBounds)){
+				this.activeBomb.bounce();
+			}
+			else if (this.grid.hasCollided(this.activeBomb)){
+				this.activeBomb = null;
+			}
+			else if (this.activeBomb.hasIntersected(topBounds)){
+				this.activeBomb.stop();
+				this.activeBomb.style.y = topBounds.start.y;
+				this.activeBomb = null;
+			}
+		}
+	};
 });

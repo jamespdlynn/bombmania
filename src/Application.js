@@ -1,4 +1,5 @@
 import device;
+import ui.ImageView as ImageView;
 import src.Game as Game;
 
 
@@ -8,13 +9,21 @@ var baseWidth = 576,
 
 exports = Class(GC.Application,function (){
 
-	var game;
-
   	this.initUI = function() {
 
   		this.style.scale = device.screen.width / baseWidth;
 
-	  	game = new Game({
+		/*var background = new ImageView({
+			superview: this.view,
+			x: 0,
+			y: 0,
+			width: baseWidth,
+			height: baseHeight,
+			image: "resources/images/background.png", //576x1024
+			zIndex: 0
+		});*/
+
+	  	this.game = new Game({
 	  		superview : this,
 	  		width : baseWidth,
 	  		height : baseHeight
@@ -24,7 +33,7 @@ exports = Class(GC.Application,function (){
 
 
   	this.launchUI = function() {
-  		game.start();
+  		this.game.start();
   	}		
 
 

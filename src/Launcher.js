@@ -1,6 +1,6 @@
 import ui.View as View;
 import ui.ImageView as ImageView;
-import src.bombpool as bombpool;
+import src.Bomb as Bomb;
 import animate;
 
 exports = Class(View, function(supr){
@@ -12,26 +12,26 @@ exports = Class(View, function(supr){
 
 		this.cannon = new ImageView({
 			superview : this,
-			height : this.style.height,
+			width: 120,
 			zIndex: 1,
         	autoSize : true,
         	fixedAspectRatio : true,
         	image : 'resources/images/cannon.png'
 		});
 
-		this.style.width = this.cannon.style.width;
-
+		var cStyle = this.cannon.style;
     	this.style.update({
-    		x : this.style.x - (this.style.width/2),
-    		anchorX : this.style.width/2,
-    		anchorY : this.style.height
+    		width : cStyle.width,
+			height : cStyle.height,
+    		anchorX : cStyle.width/2,
+    		anchorY : cStyle.height
     	});
 
+		console.log(this.style.anchorX);
+
 		this.bombs = [this._createBomb(), this._createBomb()];
-		
-		var height = this.bombs[0].style.height;
-	    this.bombs[0].style.y -= 2*height
-	    this.bombs[1].style.y -= height
+	    this.bombs[0].style.y -= 2*Bomb.size()
+	    this.bombs[1].style.y -= Bomb.size();
 			    
 
 	};
@@ -70,12 +70,10 @@ exports = Class(View, function(supr){
 
     this._createBomb = function(opts){
     	var style = this.style;
-    	var bomb = bombpool.obtainView({
+    	var bomb = Bomb.obtain({
 			superview : this,
-		});
-		bomb.style.update({
-			x: style.anchorX - (bomb.style.width/2)-5,
-			y: style.height - bomb.style.height,
+			x: style.anchorX - (Bomb.size()/2),
+			y: style.height - (Bomb.size()/2)-5,
 			zIndex : 0
 		});
 		return bomb;
