@@ -1,6 +1,7 @@
 import ui.View as View;
 import src.Launcher as Launcher;
 import src.Grid as Grid;
+import ui.SpriteView as SpriteView;
 import math.geom.Rect as Rect;
 
 exports = Class(View, function(supr){
@@ -25,6 +26,7 @@ exports = Class(View, function(supr){
 			height : this.launcher.style.y
 		});
 
+
 		this.bounds = this.getBoundingShape();
 
 
@@ -32,8 +34,8 @@ exports = Class(View, function(supr){
 	};
 
 
-	this.start = function(){
-		this.on('InputStart', function(evt,pt){
+	this.start = function() {
+		this.on('InputStart', function (evt, pt) {
 			this.launcher.rotate(pt);
 			this.addEventListeners();
 		});
@@ -61,7 +63,7 @@ exports = Class(View, function(supr){
 					y : point.y
 				});
 
-				this.activeBomb.start(this.launcher.getAngle());
+				this.activeBomb.startMoving(this.launcher.getAngle());
 
 
 			}

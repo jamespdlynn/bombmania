@@ -17,7 +17,7 @@ exports = Class(GC.Application,function (){
 			superview: this,
 			width: baseWidth,
 			height: baseHeight,
-			image: "resources/images/background.png", //576x1024
+			image: "resources/images/background.png",
 			zIndex: 0
 		});
 

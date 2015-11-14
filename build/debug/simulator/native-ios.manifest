@@ -3,6 +3,7 @@ CACHE MANIFEST
 #f8a13d8c21f249228b83c69c2df589bc version debug
 
 CACHE:
+resources/sounds/explosion.mp3
 spritesheets/spritesheetSizeMap.json
 index.html
 native-ios.js

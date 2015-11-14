@@ -27,8 +27,6 @@ exports = Class(View, function(supr){
     		anchorY : cStyle.height
     	});
 
-		console.log(this.style.anchorX);
-
 		this.bombs = [this._createBomb(), this._createBomb()];
 	    this.bombs[0].style.y -= 2*Bomb.size()
 	    this.bombs[1].style.y -= Bomb.size();

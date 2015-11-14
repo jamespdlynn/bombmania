@@ -2,7 +2,7 @@ import ui.View as View;
 import src.Bomb as Bomb;
 
 
-exports = Class(View, function(supr){
+var Grid = exports = Class(View, function(supr){
 
 
     this.init = function(opts){
@@ -22,15 +22,10 @@ exports = Class(View, function(supr){
 
             for (var c=0; c < this._cols; c++){
                 if (r < this._rows/2) {
-                    this._grid[r][c] = Bomb.obtain({
-                        superview : this,
-                        x : c * size + (r % 2 ? this._diff : 0),
-                        y : r * size
-                    });
+                    this._place(Bomb.obtain(),r, c);
                 }else{
                     this._grid[r][c] = null
                 }
-
             }
         }
 
@@ -38,13 +33,33 @@ exports = Class(View, function(supr){
 
     this.hasCollided = function(bomb){
 
+        var grid = this._grid;
 
         for (var r=0; r < this._rows; r++){
             for (var c=0; c < this._cols; c++){
+                if(grid[r][c] && grid[r][c].hasCollided(bomb)){
+                    bomb.stopMoving();
 
-                if(this._grid[r][c] && this._grid[r][c].hasCollided(bomb)){
-                    bomb.stop();
-                    this._placeBomb(bomb);
+                    var shape = bomb.getBoundingShape();
+                    var size = shape.radius * 2;
+                    var row = Math.floor(shape.y /size);
+                    var col = Math.floor((row%2 ? shape.x-this._diff : shape.x)/size);
+
+                    this._place(bomb,row,col);
+
+                    var matching = [];
+                    this._appendMatches(bomb,matching);
+
+
+                    if (matching.length >= 3){
+                        matching.forEach(function(bomb){
+                            var pos = bomb.pos;
+                            grid[pos.r][pos.c] = null;
+                            bomb.explode();
+                        });
+
+                    }
+
                     return true;
                 }
 
@@ -55,20 +70,50 @@ exports = Class(View, function(supr){
 
     };
 
-    this._placeBomb = function(bomb){
-        var shape = bomb.getBoundingShape();
+    this._place = function(bomb,row,col){
         var size = Bomb.size();
-        var row = Math.floor(shape.y / size);
-        var col = Math.floor((row%2 ? shape.x-this._diff : shape.x)/size);
-
         this._grid[row][col] = bomb;
-        bomb.style.update({
-            x : col * Bomb.size() + (row % 2 ? this._diff : 0),
-            y : row * Bomb.size()
+        bomb.updateOpts({
+            superview : this,
+            x : col * size + (row % 2 ? this._diff : 0),
+            y : row * size
         });
+        bomb.pos = {r:row,c:col};
+    };
+
+    this._appendMatches = function(bomb,matching){
+        if (!matching.length || (bomb.matches(matching[0]) && matching.indexOf(bomb) < 0)){
+            matching.push(bomb);
+            this._getNeighbors(bomb).forEach(bind(this,function(value){
+                this._appendMatches(value,matching);
+            }));
+        }
     }
+
+    this._getNeighbors = function(bomb){
+        var pos = bomb.pos;
+        var i = pos.r % 2 ? 1 : -1;
+
+        var neighbors = [
+            this._fetch(pos.r, pos.c-1),
+            this._fetch(pos.r, pos.c+1),
+            this._fetch(pos.r-1, pos.c),
+            this._fetch(pos.r-1, pos.c+i),
+            this._fetch(pos.r+1, pos.c),
+            this._fetch(pos.r+1, pos.c+i)
+        ];
+
+        return neighbors.filter(function(bomb){
+            return bomb != null;
+        });
+    };
+
+    this._fetch = function(row,col){
+        if (row < 0 || row >= this._rows || col < 0 || col >= this._cols){
+            return null;
+        }
+        return this._grid[row][col];
+    };
 
 
 });
-
-
