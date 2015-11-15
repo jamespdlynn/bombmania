@@ -1,5 +1,9 @@
+/**
+ * Bomb Grid used to store and attach bombs
+ */
 import ui.View as View;
 import src.Bomb as Bomb;
+import animate;
 
 var Grid = exports = Class(View, function(supr){
 
@@ -26,39 +30,60 @@ var Grid = exports = Class(View, function(supr){
                 }
             }
         }
+
     };
+
 
     this.hasCollided = function(bomb){
 
-        var grid = this._grid;
-
-        for (var r=0; r < this._rows; r++){
-            for (var c=0; c < this._cols; c++){
-                if((grid[r][c] && grid[r][c].hasCollided(bomb)) || bomb.style.y <= 0){
-                    bomb.stopMoving();
-
-                    var shape = bomb.getBoundingShape();
-                    var size = shape.radius * 2;
-                    var row = Math.floor(shape.y /size);
-                    var col = Math.floor((row%2 ? shape.x-this._diff : shape.x)/size);
-
-                    this._place(bomb,row,col);
-
-                    var matching = [];
-                    this._appendMatches(bomb,matching);
-
-                    if (matching.length >= 3){
-                        this._explodeBombs(matching);
-                    }
-
-                    return true;
-                }
-
-            }
+        if (bomb.style.y <= 0){
+            this._collide(bomb);
+            return true;
         }
 
-        return false;
+        return this._iterateGrid(function(bomb2) {
+            if (bomb.hasCollided(bomb2)){
+                this._collide(bomb);
+                return true;
+            }
+        });
+    };
 
+    this._collide = function(bomb){
+        bomb.stopMoving();
+
+        var shape = bomb.getBoundingShape();
+        var size = shape.radius * 2;
+        var row = Math.floor(shape.y / size);
+        var col = Math.floor((row % 2 ? shape.x - this._diff : shape.x) / size);
+        this._place(bomb, row, col);
+
+        var matching = [];
+        this._appendNeighbors(bomb, matching,true);
+
+        if (matching.length >= 3) {
+            matching.forEach(bind(this,function(bomb){
+                this._explodeBomb(bomb);
+                this.emit('incrementScore', 10);
+            }));
+        }
+
+        this._removeStragglers();
+
+
+    };
+
+    this._iterateGrid = function(fn){
+        for (var r=0; r < this._rows; r++) {
+            for (var c = 0; c < this._cols; c++) {
+                if (this._grid[r][c]) {
+                    if (fn.call(this, this._grid[r][c])){
+                        return true;
+                    };
+                }
+            }
+        }
+        return false;
     };
 
     this._place = function(bomb,row,col){
@@ -72,16 +97,22 @@ var Grid = exports = Class(View, function(supr){
         bomb.pos = {r:row,c:col};
     };
 
-    this._appendMatches = function(bomb,matching){
-        if (!matching.length || (bomb.matches(matching[0]) && matching.indexOf(bomb) < 0)){
-            matching.push(bomb);
-            this._getNeighbors(bomb).forEach(bind(this,function(value){
-                this._appendMatches(value,matching);
-            }));
+    this._appendNeighbors = function(bomb,neighbors,matchingOnly){
+        if (!neighbors.length ||
+            (neighbors.indexOf(bomb) < 0 &&
+            (!matchingOnly || bomb.matches(neighbors[0])))){
+
+                neighbors.push(bomb);
+                this._getNeighbors(bomb).forEach(bind(this,function(value){
+                    this._appendNeighbors(value,neighbors,matchingOnly);
+                }));
         }
-    }
+
+    };
 
     this._getNeighbors = function(bomb){
+        if (!bomb) return [];
+
         var pos = bomb.pos;
         var i = pos.r % 2 ? 1 : -1;
 
@@ -106,20 +137,29 @@ var Grid = exports = Class(View, function(supr){
         return this._grid[row][col];
     };
 
-    this._explodeBombs = function(bombs){
-        if (!bombs.length) return;
+    this._removeStragglers = function(){
+        var ancestors = [];
+        for (var c=0; c < this._cols; c++) {
+            this._appendNeighbors(this._grid[0][c],ancestors,false);
+        }
 
-        var bomb = bombs.shift();
-        bomb.explode();
+        this._iterateGrid(function(bomb){
+            if (ancestors.indexOf(bomb) < 0){
+                var duration = ((this.style.height-bomb.style.y)*2);
+                animate(bomb).now({y:this.style.height},duration).then(bind(this,function(){
+                    this._explodeBomb(bomb);
+                    this.emit('incrementScore', 30);
+                }));
+            }
+        });
 
+
+    };
+
+    this._explodeBomb = function(bomb){
         this._grid[bomb.pos.r][bomb.pos.c] = null;
         bomb.pos = null;
-
-        this.emit('incrementScore', 10);
-
-        setTimeout(bind(this, function(){
-            this._explodeBombs(bombs);
-        }),200);
+        bomb.explode();
     };
 
 });

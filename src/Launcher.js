@@ -1,6 +1,10 @@
+/**
+ * Launcher used to aim and shoot bombs
+ */
 import ui.View as View;
 import ui.ImageView as ImageView;
 import src.Bomb as Bomb;
+import src.audio as audio;
 import animate;
 
 exports = Class(View, function(supr){
@@ -57,6 +61,8 @@ exports = Class(View, function(supr){
 
 		animate(this.bombs[0]).now({y:y0-height},500);
 		animate(this.bombs[1]).now({y:y1-height},500);
+
+		audio.play('shot');
 
 		return bomb;
     };

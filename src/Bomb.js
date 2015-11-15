@@ -1,3 +1,8 @@
+/**
+ * Individiual Bomb Sprite
+ */
+
+import src.audio as audio;
 import ui.SpriteView as SpriteView;
 import ui.ViewPool as ViewPool;
 import math.geom.Vec2D as Vec2D;
@@ -16,6 +21,7 @@ var explosionRows = 6;
 
 var animations = [];
 
+///Dynamically create all 48 explosion frames
 for (var r = 0; r < explosionRows; r++) {
     for (var c = 0; c < explosionCols; c++) {
 		animations.push([c,r]);
@@ -23,11 +29,12 @@ for (var r = 0; r < explosionRows; r++) {
 }
 
 
+//Override SpriteView instead of ImageView as we need sprites to animate explosion
 var Bomb = exports = Class(SpriteView, function(supr){
 
 	this.init = function(opts){
 
-		//Bit of a hack but ensure bombs is obtained through view pool rather than crated itself
+		//Bit of a hack but ensure bombs is obtained through view pool rather than instantiated itself
 		if (!opts || !opts.obtained){
 			throw new Error("Bomb must not be instantiated directly but obtained through the 'Bomb.obtain' call");
 		}
@@ -54,6 +61,7 @@ var Bomb = exports = Class(SpriteView, function(supr){
 
         supr(this, 'updateOpts', [opts]);
 
+		//Pick a color at random
         if (!this._color){
             this._color = colors[Math.floor(Math.random()*colors.length)];
         }
@@ -110,6 +118,8 @@ var Bomb = exports = Class(SpriteView, function(supr){
         this.style.x -= (explosionSize-Bomb.size())/2;
         this.style.y -= (explosionSize-Bomb.size())/2;
 
+		audio.play('explosion');
+
 		this.startAnimation('explode',{
             callback:bind(this,this.remove)
         });
@@ -140,7 +150,7 @@ var pool = new ViewPool({
 	}
 });
 
-
+//Helper methods for receiving and releasing bombs from the preinstantiated pool
 Bomb.obtain = bind(pool,pool.obtainView);
 Bomb.release = bind(pool, pool.releaseView);
 Bomb.size = function(){

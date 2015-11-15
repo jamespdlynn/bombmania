@@ -1,7 +1,11 @@
+/**
+ * Main Application Launcher
+ */
+
 import device;
 import ui.ImageView as ImageView;
+import ui.resource.loader as loader;
 import src.Game as Game;
-
 
 var baseWidth = 576,
     baseHeight = device.screen.height * (baseWidth / device.screen.width);
@@ -28,6 +32,8 @@ exports = Class(GC.Application,function (){
 			zIndex : 1
 	  	});
 
+		//preload assets
+		loader.preload(['resources/images', 'resources/sounds']);
 	};
 
 

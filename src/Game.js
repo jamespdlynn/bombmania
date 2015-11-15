@@ -1,3 +1,7 @@
+/**
+ * Main Game Runner File
+ */
+
 import ui.View as View;
 import ui.TextView as TextView;
 import src.Launcher as Launcher;
