@@ -1,9 +1,7 @@
 import ui.View as View;
 import src.Bomb as Bomb;
 
-
 var Grid = exports = Class(View, function(supr){
-
 
     this.init = function(opts){
         supr(this, 'init', [opts]);
@@ -28,7 +26,6 @@ var Grid = exports = Class(View, function(supr){
                 }
             }
         }
-
     };
 
     this.hasCollided = function(bomb){
