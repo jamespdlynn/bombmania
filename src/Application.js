@@ -26,7 +26,7 @@ exports = Class(GC.Application,function (){
 	  		width : baseWidth,
 	  		height : baseHeight,
 			zIndex : 1
-	  	})
+	  	});
 
 	};
 

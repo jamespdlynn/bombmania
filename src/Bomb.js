@@ -54,7 +54,6 @@ var Bomb = exports = Class(SpriteView, function(supr){
 
         supr(this, 'updateOpts', [opts]);
 
-
         if (!this._color){
             this._color = colors[Math.floor(Math.random()*colors.length)];
         }
@@ -117,10 +116,14 @@ var Bomb = exports = Class(SpriteView, function(supr){
 	};
 
 	this.remove = function(){
+		this._color = null;
 		this.stopMoving();
 		this.stopAnimation();
-        this._color = null;
-		//this.removeFromSuperView();
+
+		var superview = this.getSuperview();
+		if (superview){
+			superview.removeSubview(this);
+		}
 		Bomb.release(this);
 	};
 

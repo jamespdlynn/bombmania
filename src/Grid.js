@@ -37,7 +37,7 @@ var Grid = exports = Class(View, function(supr){
 
         for (var r=0; r < this._rows; r++){
             for (var c=0; c < this._cols; c++){
-                if(grid[r][c] && grid[r][c].hasCollided(bomb)){
+                if((grid[r][c] && grid[r][c].hasCollided(bomb)) || bomb.style.y <= 0){
                     bomb.stopMoving();
 
                     var shape = bomb.getBoundingShape();
@@ -50,14 +50,8 @@ var Grid = exports = Class(View, function(supr){
                     var matching = [];
                     this._appendMatches(bomb,matching);
 
-
                     if (matching.length >= 3){
-                        matching.forEach(function(bomb){
-                            var pos = bomb.pos;
-                            grid[pos.r][pos.c] = null;
-                            bomb.explode();
-                        });
-
+                        this._explodeBombs(matching);
                     }
 
                     return true;
@@ -115,5 +109,20 @@ var Grid = exports = Class(View, function(supr){
         return this._grid[row][col];
     };
 
+    this._explodeBombs = function(bombs){
+        if (!bombs.length) return;
+
+        var bomb = bombs.shift();
+        bomb.explode();
+
+        this._grid[bomb.pos.r][bomb.pos.c] = null;
+        bomb.pos = null;
+
+        this.emit('incrementScore', 10);
+
+        setTimeout(bind(this, function(){
+            this._explodeBombs(bombs);
+        }),200);
+    };
 
 });
