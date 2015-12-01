@@ -23,8 +23,8 @@ var Grid = exports = Class(View, function(supr){
             this._grid[r]= [];
 
             for (var c=0; c < this._cols; c++){
-                if (r < this._rows/2) {
-                    this._place(Bomb.obtain(),r, c);
+                if (r < this._rows/4) {
+                    this._attach(Bomb.obtain({superview:this}),r, c);
                 }else{
                     this._grid[r][c] = null
                 }
@@ -32,7 +32,6 @@ var Grid = exports = Class(View, function(supr){
         }
 
     };
-
 
     this.hasCollided = function(bomb){
 
@@ -49,6 +48,7 @@ var Grid = exports = Class(View, function(supr){
         });
     };
 
+
     this._collide = function(bomb){
         bomb.stopMoving();
 
@@ -56,25 +56,41 @@ var Grid = exports = Class(View, function(supr){
         var size = shape.radius * 2;
         var row = Math.floor(shape.y / size);
         var col = Math.floor((row % 2 ? shape.x - this._diff : shape.x) / size);
-        this._place(bomb, row, col);
+
+        //game ends if all rows are used up
+        if (row >= this._rows){
+            bomb.explode();
+            this._iterateGrid(function(bomb){
+                bomb.explode();
+            });
+            this.emit('gameOver');
+            return;
+        }
+        //a bomb is already in this position, this should not happen
+        else if(this._fetch(row,col)){
+            bomb.explode();
+            return;
+        }
+
+        this._attach(bomb, row, col, true);
 
         var matching = [];
         this._appendNeighbors(bomb, matching,true);
 
         if (matching.length >= 3) {
             matching.forEach(bind(this,function(bomb){
-                this._explodeBomb(bomb);
+                bomb.explode();
+                this._detach(bomb);
                 this.emit('incrementScore', 10);
             }));
         }
 
         this._removeStragglers();
 
-
     };
 
     this._iterateGrid = function(fn){
-        for (var r=0; r < this._rows; r++) {
+        for (var r=this._rows-1; r >=0; r--) {
             for (var c = 0; c < this._cols; c++) {
                 if (this._grid[r][c]) {
                     if (fn.call(this, this._grid[r][c])){
@@ -86,15 +102,29 @@ var Grid = exports = Class(View, function(supr){
         return false;
     };
 
-    this._place = function(bomb,row,col){
+    this._attach = function(bomb,row,col,isAnimation){
+
         var size = Bomb.size();
         this._grid[row][col] = bomb;
-        bomb.updateOpts({
-            superview : this,
+
+        var style = {
             x : col * size + (row % 2 ? this._diff : 0),
             y : row * size
-        });
+        };
+
+        if (isAnimation){
+            animate(bomb).now(style,50,animate.linear);
+        }else{
+            bomb.style.x = style.x;
+            bomb.style.y = style.y;
+        }
+
         bomb.pos = {r:row,c:col};
+    };
+
+    this._detach = function(bomb){
+        this._grid[bomb.pos.r][bomb.pos.c] = null;
+        bomb.pos = null;
     };
 
     this._appendNeighbors = function(bomb,neighbors,matchingOnly){
@@ -145,9 +175,11 @@ var Grid = exports = Class(View, function(supr){
 
         this._iterateGrid(function(bomb){
             if (ancestors.indexOf(bomb) < 0){
-                var duration = ((this.style.height-bomb.style.y)*2);
-                animate(bomb).now({y:this.style.height},duration).then(bind(this,function(){
-                    this._explodeBomb(bomb);
+                var height = this.getSuperview().style.height * 1.5;
+                var duration = height-bomb.style.y;
+                this._detach(bomb);
+                animate(bomb).now({y:height},duration,animate.easeIn).then(bind(this,function(){
+                    bomb.remove();
                     this.emit('incrementScore', 30);
                 }));
             }
@@ -156,10 +188,6 @@ var Grid = exports = Class(View, function(supr){
 
     };
 
-    this._explodeBomb = function(bomb){
-        this._grid[bomb.pos.r][bomb.pos.c] = null;
-        bomb.pos = null;
-        bomb.explode();
-    };
+
 
 });

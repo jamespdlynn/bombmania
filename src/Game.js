@@ -8,7 +8,7 @@ import src.Launcher as Launcher;
 import src.Grid as Grid;
 import math.geom.Rect as Rect;
 
-exports = Class(View, function(supr){
+var Game = exports = Class(View, function(supr){
 
 	this.init = function(){
 
@@ -37,7 +37,7 @@ exports = Class(View, function(supr){
 			width: this.launcher.style.x,
 			height: 40,
 			autoSize: false,
-			size: 38,
+			size: 30,
 			verticalAlign: 'middle',
 			horizontalAlign: 'left',
 			wrap: false,
@@ -62,6 +62,9 @@ exports = Class(View, function(supr){
 
 			this.on('InputSelect', function(){
 
+				this.removeAllListeners('InputMove');
+				this.removeAllListeners('InputSelect')
+
 				if (!this.activeBomb){
 					this.activeBomb = this.launcher.fire();
 
@@ -75,15 +78,36 @@ exports = Class(View, function(supr){
 					this.activeBomb.startMoving(this.launcher.getAngle());
 					this.tick = this._detectCollisions;
 				}
-
-				this.removeAllListeners('InputMove');
-				this.removeAllListeners('InputSelect');
 			});
 
 		});
 
 		this.grid.on('incrementScore',bind(this,this._incrementScore));
+		this.grid.on('gameOver',bind(this,this.end));
 
+	};
+
+	//TODO Add replay button and cleanup/restart functionality
+	this.end = function(){
+		this.removeAllListeners();
+		this.grid.removeAllListeners();
+		this.launcher.style.opacity = 0.5;
+		this.grid.style.opacity = 0.5;
+
+		new TextView({
+			superview: this,
+			x : 0,
+			y : this.style.height/5,
+			width: this.style.width,
+			height : 80,
+			autoSize: false,
+			size: 50,
+			verticalAlign: 'middle',
+			horizontalAlign: 'center',
+			wrap: false,
+			text: "Game Over",
+			color: '#FFFFFF'
+		});
 	};
 
 	this._detectCollisions = function(){
@@ -101,6 +125,18 @@ exports = Class(View, function(supr){
 
 	this._incrementScore = function(value){
 		this.score += value;
-		this.scoreboard.setText(this.score.toString());
+
+		if (value && !this._interval){
+			this._interval = setInterval(bind(this,function(){
+				var current = parseInt(this.scoreboard.getText());
+				if (current < this.score){
+					this.scoreboard.setText(current+1);
+				}else{
+					clearInterval(this._interval);
+					delete this._interval;
+				}
+			}),10);
+		}
+
 	};
 });

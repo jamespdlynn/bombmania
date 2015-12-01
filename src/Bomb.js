@@ -35,7 +35,7 @@ var Bomb = exports = Class(SpriteView, function(supr){
 	this.init = function(opts){
 
 		//Bit of a hack but ensure bombs is obtained through view pool rather than instantiated itself
-		if (!opts || !opts.obtained){
+		if (!opts || !opts.pool){
 			throw new Error("Bomb must not be instantiated directly but obtained through the 'Bomb.obtain' call");
 		}
 
@@ -47,6 +47,8 @@ var Bomb = exports = Class(SpriteView, function(supr){
 							explosionSize, explosionSize,
 							explosionSize, explosionSize,
 							0, 0, animations);
+
+		this.setFramerate(explosionFrameRate);
     };
 
     this.updateOpts = function(opts){
@@ -69,7 +71,7 @@ var Bomb = exports = Class(SpriteView, function(supr){
         this.stopMoving();
         this.stopAnimation();
         this.setImage('resources/images/bombs/'+this._color+'.png');
-        this.setFramerate(explosionFrameRate);
+
     };
 
     this.getBoundingShape = function(){
@@ -146,7 +148,7 @@ var pool = new ViewPool({
 	ctor: Bomb,
 	initCount : 120,
 	initOpts: {
-		obtained : true
+		pool : true
 	}
 });
 

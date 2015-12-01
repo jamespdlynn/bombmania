@@ -7,7 +7,7 @@ import src.Bomb as Bomb;
 import src.audio as audio;
 import animate;
 
-exports = Class(View, function(supr){
+var Launcher = exports = Class(View, function(supr){
 
 
 	this.init = function(opts){

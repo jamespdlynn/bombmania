@@ -11,7 +11,7 @@ var baseWidth = 576,
     baseHeight = device.screen.height * (baseWidth / device.screen.width);
 
 
-exports = Class(GC.Application,function (){
+var Application = exports = Class(GC.Application,function (){
 
   	this.initUI = function() {
 
@@ -33,7 +33,7 @@ exports = Class(GC.Application,function (){
 	  	});
 
 		//preload assets
-		loader.preload(['resources/images', 'resources/sounds']);
+		loader.preload(['resources/images','resources/sounds']);
 	};
 
 
