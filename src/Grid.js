@@ -72,7 +72,7 @@ var Grid = exports = Class(View, function(supr){
             return;
         }
 
-        this._attach(bomb, row, col, true);
+        this._attach(bomb, row, col, {animate:true});
 
         var matching = [];
         this._appendNeighbors(bomb, matching,true);
@@ -85,7 +85,7 @@ var Grid = exports = Class(View, function(supr){
             }));
         }
 
-        this._removeStragglers();
+        this._dropStragglers();
 
     };
 
@@ -102,7 +102,7 @@ var Grid = exports = Class(View, function(supr){
         return false;
     };
 
-    this._attach = function(bomb,row,col,isAnimation){
+    this._attach = function(bomb,row,col,opt){
 
         var size = Bomb.size();
         this._grid[row][col] = bomb;
@@ -112,11 +112,10 @@ var Grid = exports = Class(View, function(supr){
             y : row * size
         };
 
-        if (isAnimation){
+        if (opt && opt.animate){
             animate(bomb).now(style,50,animate.linear);
         }else{
-            bomb.style.x = style.x;
-            bomb.style.y = style.y;
+           bomb.style.update(style);
         }
 
         bomb.pos = {r:row,c:col};
@@ -128,11 +127,10 @@ var Grid = exports = Class(View, function(supr){
     };
 
     this._appendNeighbors = function(bomb,neighbors,matchingOnly){
-        if (!neighbors.length ||
-            (neighbors.indexOf(bomb) < 0 &&
-            (!matchingOnly || bomb.matches(neighbors[0])))){
+        if (!neighbors.length || (neighbors.indexOf(bomb) < 0 && (!matchingOnly || bomb.matches(neighbors[0])))){
 
                 neighbors.push(bomb);
+
                 this._getNeighbors(bomb).forEach(bind(this,function(value){
                     this._appendNeighbors(value,neighbors,matchingOnly);
                 }));
@@ -167,7 +165,7 @@ var Grid = exports = Class(View, function(supr){
         return this._grid[row][col];
     };
 
-    this._removeStragglers = function(){
+    this._dropStragglers = function(){
         var ancestors = [];
         for (var c=0; c < this._cols; c++) {
             this._appendNeighbors(this._grid[0][c],ancestors,false);
