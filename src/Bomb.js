@@ -28,7 +28,6 @@ for (var r = 0; r < explosionRows; r++) {
 	}
 }
 
-
 //Override SpriteView instead of ImageView as we need sprites to animate explosion
 var Bomb = exports = Class(SpriteView, function(supr){
 
@@ -146,7 +145,7 @@ var Bomb = exports = Class(SpriteView, function(supr){
 
 var pool = new ViewPool({
 	ctor: Bomb,
-	initCount : 120,
+	initCount : 200,
 	initOpts: {
 		pool : true
 	}
