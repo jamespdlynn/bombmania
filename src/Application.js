@@ -10,7 +10,6 @@ import src.Game as Game;
 var baseWidth = 576,
     baseHeight = device.screen.height * (baseWidth / device.screen.width);
 
-
 var Application = exports = Class(GC.Application,function (){
 
   	this.initUI = function() {
@@ -39,7 +38,7 @@ var Application = exports = Class(GC.Application,function (){
 
   	this.launchUI = function() {
   		this.game.start();
-  	}		
+  	}
 
 
 });

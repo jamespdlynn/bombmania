@@ -14,6 +14,14 @@ var Launcher = exports = Class(View, function(supr){
 		
 	    supr(this, 'init', [opts]);
 
+		this.style.update({
+			width : 120,
+			height : 200,
+			anchorX : 60,
+			anchorY : 200
+		});
+
+
 		this.cannon = new ImageView({
 			superview : this,
 			width: 120,
@@ -24,18 +32,10 @@ var Launcher = exports = Class(View, function(supr){
 		});
 
 		var cStyle = this.cannon.style;
-    	this.style.update({
-    		width : cStyle.width,
-			height : cStyle.height,
-    		anchorX : cStyle.width/2,
-    		anchorY : cStyle.height
-    	});
 
 		this.bombs = [this._createBomb(), this._createBomb()];
 	    this.bombs[0].style.y -= 2*Bomb.size()
 	    this.bombs[1].style.y -= Bomb.size();
-			    
-
 	};
 
     this.rotate = function(point){

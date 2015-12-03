@@ -11,6 +11,9 @@ var audio = exports = new AudioManager({
         },
         explosion: {
             volume : 1
+        },
+        ding : {
+            volume : 0.8
         }
     }
 });
