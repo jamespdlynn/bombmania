@@ -5,12 +5,21 @@
   },
   "shortName": "bombmania",
   "studio": {
-    "domain": "studio.example.com",
-    "name": "Your Studio Name",
-    "stagingDomain": "staging.example.com"
+    "domain": "aristobotgames.com",
+    "name": "Aristobot Games"
   },
-  "supportedOrientations": [
-    "portrait"
-  ],
-  "title": "Bomb Mania"
+  "supportedOrientations": ["portrait"],
+  "title": "Bomb Mania",
+  "icon": "resources/icons/icon512.png",
+  "android": {
+    "versionCode": 1,
+    "icons": {
+      "36": "resources/icons/icon36.png",
+      "48": "resources/icons/icon48.png",
+      "72": "resources/icons/icon72.png",
+      "96": "resources/icons/icon96.png",
+      "144": "resources/icons/icon144.png"
+    }
+  }
+
 }

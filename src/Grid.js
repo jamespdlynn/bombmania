@@ -15,14 +15,16 @@ var Grid = exports = Class(View, function(supr){
 
         this._collisions = 0;
 
-        this._cols = Math.floor(this.style.width/SIZE)
+        this._cols = Math.floor(this.style.width/SIZE);
         this._rows = Math.floor(this.style.height/SIZE);
         this._diff = this.style.width - this._cols*SIZE;
 
         this._grid=[];
 
         this._flip = false;
+    };
 
+    this.build = function(){
         for (var r=0; r < this._rows; r++){
 
             this._grid[r]= [];
@@ -37,6 +39,13 @@ var Grid = exports = Class(View, function(supr){
                 }
             }
         }
+    };
+
+    this.destroy = function(){
+        this._iterateGrid(function(bomb){
+            this._detach(bomb);
+            bomb.explode();
+        });
     };
 
     this.hasCollided = function(bomb){
@@ -56,7 +65,6 @@ var Grid = exports = Class(View, function(supr){
 
     this._collide = function(bomb){
         bomb.stopMoving();
-        this._collisions++;
 
         var shape = bomb.getBoundingShape();
         var row = Math.floor(shape.y / SIZE);
@@ -77,8 +85,7 @@ var Grid = exports = Class(View, function(supr){
         //game ends if all rows are used up
         if (row >= this._rows){
             bomb.explode();
-            this._cleanup();
-            this.emit('gameOver');
+            this.emit('game:end');
             return;
         }
 
@@ -98,9 +105,10 @@ var Grid = exports = Class(View, function(supr){
             matching.forEach(bind(this,function(bomb){
                 bomb.explode();
                 this._detach(bomb);
-                this.emit('incrementScore', 10);
-                this._collisions = 0;
+                this.emit('game:score', 10);
             }));
+        }else{
+            this._collisions++;
         }
 
         this._dropStragglers();
@@ -118,7 +126,7 @@ var Grid = exports = Class(View, function(supr){
                 if (this._grid[r][c]) {
                     if (fn.call(this, this._grid[r][c], r, c)){
                         return true;
-                    };
+                    }
                 }
             }
         }
@@ -205,7 +213,7 @@ var Grid = exports = Class(View, function(supr){
                 animate(bomb).now({y:height},duration,animate.easeIn).then(bind(this,function(){
                     audio.play('ding');
                     bomb.remove();
-                    this.emit('incrementScore', 30);
+                    this.emit('game:score', 30);
                 }));
             }
         });
@@ -218,8 +226,7 @@ var Grid = exports = Class(View, function(supr){
 
         var gameOver = this._iterateGrid(function(bomb,row,col) {
             if (row+1 >= this._rows){
-                this._cleanup();
-                this.emit('gameOver');
+                this.emit('game:end');
                 return true;
             }
             this._attach(bomb,row+1,col,{animate:true, duration:200});
@@ -237,13 +244,6 @@ var Grid = exports = Class(View, function(supr){
                 this._attach(newBomb, 0, c, {animate:true, duration:200});
             }
         }
-    };
-
-    this._cleanup = function(){
-        this._iterateGrid(function(bomb){
-            this._detach(bomb);
-            bomb.explode();
-        });
     };
 
     this._isOdd = function(row){

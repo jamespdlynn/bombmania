@@ -138,10 +138,7 @@ var Bomb = exports = Class(SpriteView, function(supr){
 		Bomb.release(this);
 	};
 
-
-
 });
-
 
 var pool = new ViewPool({
 	ctor: Bomb,

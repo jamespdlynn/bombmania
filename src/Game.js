@@ -50,8 +50,12 @@ var Game = exports = Class(View, function(supr){
 
 	this.start = function() {
 
+		this.launcher.load();
+		this.grid.build();
+
 		this.score = 0;
 		this.scoreboard.setText(this.score.toString());
+
 
 		this.on('InputStart', function (evt, pt) {
 
@@ -82,32 +86,21 @@ var Game = exports = Class(View, function(supr){
 
 		});
 
-		this.grid.on('incrementScore',bind(this,this._incrementScore));
-		this.grid.on('gameOver',bind(this,this.end));
-
+		this.grid.on('game:score',bind(this,this._incrementScore));
+		this.grid.on('game:end',bind(this,this.end));
 	};
 
 	//TODO Add replay button and cleanup/restart functionality
 	this.end = function(){
-		this.removeAllListeners();
+		this.removeAllListeners('InputStart');
 		this.grid.removeAllListeners();
-		this.launcher.style.opacity = 0.5;
-		this.grid.style.opacity = 0.5;
 
-		new TextView({
-			superview: this,
-			x : 0,
-			y : this.style.height/5,
-			width: this.style.width,
-			height : 80,
-			autoSize: false,
-			size: 50,
-			verticalAlign: 'middle',
-			horizontalAlign: 'center',
-			wrap: false,
-			text: "Game Over",
-			color: '#FFFFFF'
-		});
+		this.grid.destroy();
+		this.launcher.unload();
+
+		setTimeout(bind(this,function(){
+			this.emit('game:end');
+		}),2000);
 	};
 
 	this._detectCollisions = function(){

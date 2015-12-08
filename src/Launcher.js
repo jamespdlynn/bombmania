@@ -9,7 +9,6 @@ import animate;
 
 var Launcher = exports = Class(View, function(supr){
 
-
 	this.init = function(opts){
 		
 	    supr(this, 'init', [opts]);
@@ -21,7 +20,6 @@ var Launcher = exports = Class(View, function(supr){
 			anchorY : 200
 		});
 
-
 		this.cannon = new ImageView({
 			superview : this,
 			width: 120,
@@ -31,11 +29,22 @@ var Launcher = exports = Class(View, function(supr){
         	image : 'resources/images/cannon.png'
 		});
 
-		var cStyle = this.cannon.style;
+		this.bombs = [];
+	};
 
-		this.bombs = [this._createBomb(), this._createBomb()];
-	    this.bombs[0].style.y -= 2*Bomb.size()
-	    this.bombs[1].style.y -= Bomb.size();
+	this.load = function(){
+		this.bombs[0] = this._createBomb();
+		this.bombs[0].style.y -= 2*Bomb.size();
+
+		this.bombs[1] = this._createBomb();
+		this.bombs[1].style.y -= Bomb.size();
+	};
+
+	this.unload = function(){
+		this.bombs.forEach(function(bomb){
+			bomb.remove();
+		});
+		this.bombs = [];
 	};
 
     this.rotate = function(point){
@@ -70,7 +79,6 @@ var Launcher = exports = Class(View, function(supr){
 	this.getAngle = function(){
 		return Math.PI/2 - this.style.r;
 	};
-
 
     this._createBomb = function(opts){
     	var style = this.style;
