@@ -10,10 +10,10 @@ var audio = exports = new AudioManager({
             volume: 1
         },
         explosion: {
-            volume : 1
+            volume: 1
         },
-        ding : {
-            volume : 0.8
+        ding: {
+            volume: 0.8
         }
     }
 });
