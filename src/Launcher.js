@@ -49,8 +49,11 @@ var Launcher = exports = Class(View, function (supr) {
 
     this.rotate = function (point) {
         var style = this.style;
-        point.x = point.x - style.x;
-        point.y = style.y - point.y;
+        var anchorX = style.x + style.anchorX;
+        var anchorY = style.y + style.anchorY;
+
+        point.x = point.x - anchorX;
+        point.y = anchorY - point.y;
 
         var angle = point.getAngle();
         if (angle > Math.PI * 0.25 && angle < Math.PI * 0.75) {
