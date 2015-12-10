@@ -1,5 +1,5 @@
 # Bomb Mania
 
-> Simple bubble shooter created using Game Closure Devkit.
+> Simple bubble shooter created using the Game Closure Devkit.
 
-> Scales to function on any touch screen device.
+> Scales so to be playable on any device mobile or tablet.
